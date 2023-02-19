@@ -13,7 +13,7 @@ import { absoluteRoutes } from '@popup/constants/routes';
 
 import './i18n';
 
-import { mainnet } from '@shared/constants/networkConfiguration';
+import { defaultNetwork } from '@shared/constants/networkConfiguration';
 import Routes from './Routes';
 
 const body = document.getElementsByTagName('body').item(0);
@@ -53,7 +53,7 @@ function Network({ children }: { children: ReactElement }) {
     const network = useAtomValue(networkConfigurationAtom);
 
     useEffect(() => {
-        if (network.name === mainnet.name) {
+        if (network.name === defaultNetwork.name) {
             body?.classList.add('mainnet');
         } else {
             body?.classList.remove('mainnet');

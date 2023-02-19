@@ -10,7 +10,7 @@ import { EventType } from '@concordium/browser-wallet-api-helpers';
 import { popupMessageHandler } from '@popup/shared/message-handler';
 import { HttpProvider, JsonRpcClient } from '@concordium/web-sdk';
 import { sessionCookie, storedCredentials } from '@shared/storage/access';
-import { mainnet } from '@shared/constants/networkConfiguration';
+import { defaultNetwork } from '@shared/constants/networkConfiguration';
 import { atomWithChromeStorage } from './utils';
 import { selectedAccountAtom } from './account';
 import { selectedIdentityIndexAtom } from './identity';
@@ -25,7 +25,7 @@ export const hasBeenOnBoardedAtom = atomWithChromeStorage<boolean>(ChromeStorage
 
 const storedNetworkConfigurationAtom = atomWithChromeStorage<NetworkConfiguration>(
     ChromeStorageKey.NetworkConfiguration,
-    mainnet
+    defaultNetwork
 );
 export const networkConfigurationAtom = atom<NetworkConfiguration, NetworkConfiguration>(
     (get) => get(storedNetworkConfigurationAtom),

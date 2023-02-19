@@ -6,7 +6,7 @@ import { absoluteRoutes } from '@popup/constants/routes';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { hasBeenOnBoardedAtom, networkConfigurationAtom, sessionPasscodeAtom } from '@popup/store/settings';
-import { mainnet, testnet } from '@shared/constants/networkConfiguration';
+import { networkConfigurations } from '@shared/constants/networkConfiguration';
 import { setupRoutes } from './routes';
 import { usePasscodeInSetup } from './passcode-helper';
 
@@ -55,26 +55,18 @@ export function ChooseNetwork() {
                     )}
                 </div>
                 <div>
-                    <Button
-                        className="onboarding-setup__page-with-header__mainnet-button"
-                        width="wide"
-                        onClick={() => {
-                            setNetworkConfiguration(mainnet);
-                            goToNext();
-                        }}
-                    >
-                        Concordium Mainnet
-                    </Button>
-                    <Button
-                        className="onboarding-setup__page-with-header__testnet-button"
-                        width="wide"
-                        onClick={() => {
-                            setNetworkConfiguration(testnet);
-                            goToNext();
-                        }}
-                    >
-                        Concordium Testnet
-                    </Button>
+                    {Object.values(networkConfigurations).map((k) => (
+                        <Button
+                            className="onboarding-setup__page-with-header__mainnet-button"
+                            width="wide"
+                            onClick={() => {
+                                setNetworkConfiguration(k);
+                                goToNext();
+                            }}
+                        >
+                            {k.name}
+                        </Button>
+                    ))}
                 </div>
             </div>
         </>

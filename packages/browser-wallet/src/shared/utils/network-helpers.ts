@@ -1,9 +1,9 @@
 import { Network, JsonRpcClient, CryptographicParameters } from '@concordium/web-sdk';
 import { NetworkConfiguration } from '@shared/storage/types';
-import { mainnet } from '@shared/constants/networkConfiguration';
+import { networkConfigurations } from '@shared/constants/networkConfiguration';
 
 export function isMainnet(network: NetworkConfiguration) {
-    return network.genesisHash === mainnet.genesisHash;
+    return network.genesisHash === networkConfigurations.mainnet?.genesisHash;
 }
 
 export function getNet(network: NetworkConfiguration): Network {
@@ -22,6 +22,6 @@ export async function getGlobal(client: JsonRpcClient): Promise<CryptographicPar
  * Fetches the current terms and condition version (and url) from the mainnet wallet proxy.
  */
 export async function getTermsAndConditionsConfig(): Promise<{ version: string; url: string } | undefined> {
-    const response = await fetch(`${mainnet.explorerUrl}/v0/termsAndConditionsVersion`);
+    const response = await fetch(`${networkConfigurations.mainnet.explorerUrl}/v0/termsAndConditionsVersion`);
     return response.json();
 }

@@ -11,7 +11,7 @@ import { isMainnet } from '@shared/utils/network-helpers';
 import { pendingIdentityAtom } from '@popup/store/identity';
 import Modal from '@popup/shared/Modal';
 import { useNavigate } from 'react-router-dom';
-import { mainnet, testnet } from '@shared/constants/networkConfiguration';
+import { networkConfigurations } from '@shared/constants/networkConfiguration';
 
 function NetworkConfigurationComponent({ networkConfiguration }: { networkConfiguration: NetworkConfiguration }) {
     const { t } = useTranslation('networkSettings');
@@ -84,7 +84,7 @@ export default function NetworkSettings() {
                 </div>
             </Modal>
             <div className="network-settings-page__list">
-                {[mainnet, testnet].map((network) => {
+                {Object.values(networkConfigurations).map((network) => {
                     return (
                         <SidedRow
                             key={network.genesisHash}
