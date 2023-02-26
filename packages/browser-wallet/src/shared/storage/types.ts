@@ -100,6 +100,7 @@ export interface IdentityProviderMetaData {
     recoveryStart: string;
     icon: string;
     support: string;
+    attributesMap: { [globalAttributeTag: string]: string };
 }
 
 /**

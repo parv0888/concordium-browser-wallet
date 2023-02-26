@@ -2,11 +2,18 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { IdStatement, StatementTypes, RevealStatement, IdProofOutput } from '@concordium/web-sdk';
+import {
+    IdStatement,
+    StatementTypes,
+    RevealStatement,
+    IdProofOutput,
+    AtomicStatement,
+    AttributeKey,
+} from '@concordium/web-sdk';
 import { InternalMessageType } from '@concordium/browser-wallet-message-hub';
 
 import { popupMessageHandler } from '@popup/shared/message-handler';
-import { identityByAddressAtomFamily } from '@popup/store/identity';
+import { identityByAddressAtomFamily, identityProvidersAtom } from '@popup/store/identity';
 import { useCredential } from '@popup/shared/utils/account-helpers';
 import { jsonRpcClientAtom, networkConfigurationAtom } from '@popup/store/settings';
 import { addToastAtom } from '@popup/state';
@@ -39,6 +46,39 @@ interface Location {
 }
 
 export default function IdProofRequest({ onReject, onSubmit }: Props) {
+    const providers = useAtomValue(identityProvidersAtom);
+
+    const getGlobalAttributesToIdpAttributeMap = (idpIndex: number) => {
+        return providers[idpIndex].metadata.attributesMap;
+    };
+
+    const getIdentityProviderAttributeTag = (globalAttributeTag: string, idpIndex: number) => {
+        const idpAttributesMap: { [globalAttributeTag: string]: string } =
+            getGlobalAttributesToIdpAttributeMap(idpIndex);
+
+        return idpAttributesMap[globalAttributeTag];
+    };
+
+    const getIdentityProviderAtomicStatement = (statement: AtomicStatement, idpIndex: number) => {
+        return {
+            ...statement,
+            attributeTag: getIdentityProviderAttributeTag(statement.attributeTag as string, idpIndex) as AttributeKey,
+        } as AtomicStatement;
+    };
+
+    const getIdentityProviderStatement: (statement: IdStatement, identityProviderIndex?: number) => IdStatement = (
+        statement,
+        identityProviderIndex
+    ) => {
+        if (identityProviderIndex === undefined || identityProviderIndex == null) {
+            throw Error('identity provider index is not defined');
+        }
+
+        return statement
+            .map((s) => getIdentityProviderAtomicStatement(s, identityProviderIndex))
+            .filter((s) => !s.attributeTag);
+    };
+
     const { state } = useLocation() as Location;
     const { statement, challenge, url, accountAddress: account } = state.payload;
     const { onClose, withClose } = useContext(fullscreenPromptContext);
@@ -52,8 +92,9 @@ export default function IdProofRequest({ onReject, onSubmit }: Props) {
     const dappName = displayUrl(url);
     const [creatingProof, setCreatingProof] = useState<boolean>(false);
     const [canProve, setCanProve] = useState(statement.length > 0);
-    const reveals = statement.filter((s) => s.type === StatementTypes.RevealAttribute) as RevealStatement[];
-    const secrets = statement.filter((s) => s.type !== StatementTypes.RevealAttribute) as SecretStatement[];
+    const idpStatement: IdStatement = getIdentityProviderStatement(statement, credential?.providerIndex);
+    const reveals = idpStatement.filter((s) => s.type === StatementTypes.RevealAttribute) as RevealStatement[];
+    const secrets = idpStatement.filter((s) => s.type !== StatementTypes.RevealAttribute) as SecretStatement[];
 
     const handleSubmit = useCallback(async () => {
         if (!identity) {
